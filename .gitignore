@@ -18,3 +18,6 @@ Thumbs.db
 *.local
 .env
 .env.local
+
+# Private working directory (never commit)
+private/
