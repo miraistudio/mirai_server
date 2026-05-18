@@ -37,11 +37,39 @@ Rocky Linux / AlmaLinux / Debian GNU/Linux / Ubuntu に対応した、SSH を中
 
 ## クイックスタート
 
+サーバーに root で SSH ログインしてから、以下のいずれかで実行します。
+
+### 方法 A: `curl` でワンライナー実行 (最速)
+
 ```bash
-# サーバーへ転送
+# サーバー側で実行
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/miraistudio/mirai_server/main/setup.sh)"
+```
+
+> **注意**: ワンライナー実行は内容の事前確認がしづらいため、初回はまず以下のように **ダウンロードして中身を読んでから** 実行することを推奨します。
+
+```bash
+curl -fsSL -o setup.sh https://raw.githubusercontent.com/miraistudio/mirai_server/main/setup.sh
+less setup.sh        # 中身を確認
+sudo bash setup.sh
+```
+
+### 方法 B: `git clone` で取得 (透明性高い)
+
+```bash
+# git が無い場合は先にインストール (RHEL: dnf install -y git / Debian: apt install -y git)
+git clone https://github.com/miraistudio/mirai_server.git
+cd mirai_server
+sudo bash setup.sh
+```
+
+### 方法 C: ローカル PC から `scp` で転送
+
+```bash
+# PC 側
 scp setup.sh root@<server-ip>:/root/
 
-# サーバーで実行
+# サーバー側
 ssh root@<server-ip>
 sudo bash /root/setup.sh
 ```
