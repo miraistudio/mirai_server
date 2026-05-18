@@ -78,6 +78,47 @@ sudo bash /root/setup.sh
 
 ---
 
+## 表示言語
+
+スクリプトはすべてのプロンプト・メッセージを **日本語 / 英語** で切り替えられます。
+
+### 自動判定（既定）
+
+| 実行環境 | 表示言語 | 理由 |
+|---|---|---|
+| SSH 経由 (擬似端末 = pts) | 日本語 | クライアント側のフォントが使われる |
+| 物理コンソール / VNC (`/dev/tty1` 等) | 英語 | TTY フォントに日本語グリフが含まれないことが多い |
+| シリアルコンソール (`/dev/ttyS0` 等) | 英語 | 同上 |
+
+### 明示指定
+
+環境変数 `LANG_OUT` で強制できます。
+
+```bash
+# 英語で実行
+LANG_OUT=en sudo bash setup.sh
+
+# 日本語で実行
+LANG_OUT=ja sudo bash setup.sh
+
+# curl ワンライナーで英語
+sudo LANG_OUT=en bash -c "$(curl -fsSL https://raw.githubusercontent.com/miraistudio/mirai_server/main/setup.sh)"
+```
+
+### 日本語フォントを入れてコンソールで日本語表示したい場合
+
+```bash
+# RHEL系
+sudo dnf install -y google-noto-sans-cjk-jp-fonts
+
+# Debian系
+sudo apt install -y fonts-noto-cjk
+```
+
+ただしクラウドコンソール側のフォント差し替えが必要なため、多くの場合は `LANG_OUT=en` で済ませる方が手軽です。
+
+---
+
 ## 対話プロンプト
 
 スクリプト起動後、以下を順に聞かれます。
