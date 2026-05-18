@@ -1,0 +1,20 @@
+# Claude Code / claude-mem auto-generated context
+CLAUDE.md
+.claude/
+.claude-mem/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local overrides
+*.local
+.env
+.env.local
