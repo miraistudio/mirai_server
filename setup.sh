@@ -501,6 +501,19 @@ fi
 # ============================================================================
 # 6. sshd 再起動
 # ============================================================================
+# Ubuntu 22.04+ / Debian 12+ では ssh.socket による socket activation がデフォルトで、
+# port 22 を抱えたまま ssh.service と衝突し新ポート bind に時間がかかる/失敗する。
+# 確実に sshd_config の Port を反映させるため socket activation を無効化する。
+if [[ "${OS_FAMILY}" == "debian" ]]; then
+  if systemctl list-unit-files ssh.socket >/dev/null 2>&1 \
+     && systemctl cat ssh.socket >/dev/null 2>&1; then
+    log "$(_t "ssh.socket (socket activation) を無効化して ssh.service 直接起動に切替" \
+              "Disabling ssh.socket (socket activation) and using ssh.service directly")"
+    systemctl disable --now ssh.socket 2>/dev/null || true
+    systemctl enable ssh.service 2>/dev/null || true
+  fi
+fi
+
 log "$(_t "${SSH_SERVICE} を再起動します" "Restarting ${SSH_SERVICE}")"
 systemctl restart "${SSH_SERVICE}"
 ok "$(_t "${SSH_SERVICE} 再起動完了" "${SSH_SERVICE} restarted")"
@@ -574,12 +587,14 @@ fi
 # ============================================================================
 SERVER_IP="$(hostname -I 2>/dev/null | awk '{print $1}' || true)"
 
-log "$(_t "Lv1: sshd の LISTEN チェック (port ${SSH_PORT})" \
-          "Lv1: checking sshd LISTEN on port ${SSH_PORT}")"
+log "$(_t "Lv1: sshd の LISTEN チェック (port ${SSH_PORT}, 最大 30 秒待機)" \
+          "Lv1: checking sshd LISTEN on port ${SSH_PORT} (up to 30s)")"
 LISTEN_OK="no"
-for _ in 1 2 3 4 5; do
+for _i in $(seq 1 30); do
   if ss -ltn 2>/dev/null | awk '{print $4}' | grep -qE ":${SSH_PORT}\$"; then
-    LISTEN_OK="yes"; break
+    LISTEN_OK="yes"
+    log "$(_t "  -> ${_i} 秒後に LISTEN を確認" "  -> LISTEN detected after ${_i}s")"
+    break
   fi
   sleep 1
 done
